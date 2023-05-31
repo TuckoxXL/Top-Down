@@ -4,40 +4,42 @@ using UnityEngine;
 
 public class player : MonoBehaviour
 {
-    private Rigidbody rb;
-    public float forceMultiplier;
-    public float jumpForce;
-    public bool canJump;
-    // Start is called before the first frame update
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        canJump = false;
-    }
+        public float moveSpeed = 5f;
+        public float rotationSpeed = 180f;
 
-    // Update is called once per frame
-    void Update()
-    {
-        float horizontalforce = Input.GetAxis("Horizontal") * forceMultiplier;
-        float verticalforce = Input.GetAxis("Vertical") * forceMultiplier;
+        private Transform characterTransform;
+        private Camera mainCamera;
 
-        horizontalforce *= Time.deltaTime;
-        verticalforce *= Time.deltaTime;
-
-        transform.Translate(horizontalforce,0,verticalforce);
-
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        private void Awake()
         {
-            rb.AddForce(0f,jumpForce,0,ForceMode.Impulse);
-            canJump = false;
+            characterTransform = GetComponent<Transform>();
+            mainCamera = Camera.main;
         }
-    }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Floor"))
+        private void Update()
         {
-            canJump = true;
+            // Movement
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
+
+            Vector3 movement = new Vector3(horizontal, 0f, vertical) * moveSpeed * Time.deltaTime;
+            characterTransform.Translate(movement, Space.World);
+
+            // Rotation
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                Vector3 targetPosition = new Vector3(hit.point.x, characterTransform.position.y, hit.point.z);
+                Vector3 direction = targetPosition - characterTransform.position;
+
+                if (direction != Vector3.zero)
+                {
+                    Quaternion toRotation = Quaternion.LookRotation(direction);
+                    characterTransform.rotation = Quaternion.RotateTowards(characterTransform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+                }
+            }
         }
-    }
+    
 }
