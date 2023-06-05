@@ -14,6 +14,7 @@ public class player : MonoBehaviour
         {
             characterTransform = GetComponent<Transform>();
             mainCamera = Camera.main;
+
         }
 
         private void Update()
