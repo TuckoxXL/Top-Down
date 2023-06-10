@@ -6,6 +6,7 @@ public class enemy : MonoBehaviour
 {
     public GameObject player;
     public float speed;
+    public int damage;
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +28,12 @@ public class enemy : MonoBehaviour
             Debug.Log("daño al enemigo");
 
             Destroy(collision.gameObject);
+            Destroy(this.gameObject);
+        }
+
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            player.GetComponent<player>().restarVida(damage);
             Destroy(this.gameObject);
         }
     }
